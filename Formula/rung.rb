@@ -7,8 +7,8 @@ class Rung < Formula
 
   desc "Deterministic gate that grades how real a verification was and who checked it"
   homepage "https://github.com/rung-dev/rung"
-  url "https://files.pythonhosted.org/packages/b8/84/01e05cbbdf35fead9815119494dde9e593d71511a4a28601366b62d3bbf4/rung_ai-0.2.0.tar.gz"
-  sha256 "e287d6b3778bc59d625f7ccbd29d5a615d7d23c56e9a5b8ce2fdd6624e28e25b"
+  url "https://files.pythonhosted.org/packages/bd/96/b4c25d393d09c3aa3c0424f217e2443528549dfc37659204eb3b04975748/rung_ai-0.5.1.tar.gz"
+  sha256 "9239f35c7f4ffca3a1de85a8d79df883daf109b42fa895e0e0666342dcbc0bf1"
   license "Apache-2.0"
 
   depends_on "python@3.13"
@@ -20,15 +20,30 @@ class Rung < Formula
   test do
     # version runs clean
     system bin/"rung", "version"
-    # a minimal well-formed bundle clears the default policy: verdict pass, exit 0.
-    # brew test suppresses subprocess stdout, so the JSON verdict shows only under
-    # `brew test --verbose`; the assert_match below is what enforces the pass.
+    # a minimal well-formed v2 bundle clears the default policy: verdict pass, exit 0.
+    # rung 1 (observed) requires at least one capture artifact, which the gate hashes,
+    # so write the capture and reference its real sha256. brew test suppresses
+    # subprocess stdout, so the JSON verdict shows only under `brew test --verbose`;
+    # the assert_match below is what enforces the pass.
+    (testpath/"cap.txt").write "ok\n"
+    require "digest"
+    sha = Digest::SHA256.hexdigest(File.read(testpath/"cap.txt"))
     (testpath/"bundle.json").write <<~JSON
       {
-        "schema": "evidence-bundle/v1",
+        "schema": "evidence-bundle/v2",
         "change": { "producer": { "lab": "test-lab" } },
         "claims": [
-          { "id": "c1", "risk_tier": "low", "rung": 2, "context": "author", "verdict": "pass" }
+          {
+            "id": "c1",
+            "risk_tier": "low",
+            "rung": 1,
+            "method": "single",
+            "context": "author",
+            "verdict": "pass",
+            "artifacts": [
+              { "id": "a0", "role": "capture", "media": "text/plain", "uri": "cap.txt", "sha256": "#{sha}" }
+            ]
+          }
         ]
       }
     JSON
