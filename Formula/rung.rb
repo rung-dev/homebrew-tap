@@ -7,8 +7,8 @@ class Rung < Formula
 
   desc "Deterministic gate that grades how real a verification was and who checked it"
   homepage "https://github.com/rung-dev/rung"
-  url "https://files.pythonhosted.org/packages/bd/96/b4c25d393d09c3aa3c0424f217e2443528549dfc37659204eb3b04975748/rung_ai-0.5.1.tar.gz"
-  sha256 "9239f35c7f4ffca3a1de85a8d79df883daf109b42fa895e0e0666342dcbc0bf1"
+  url "https://files.pythonhosted.org/packages/67/a2/368b0b48d33d0f05f38ebaa8f6654ba832c651f3284b585bb4dcce307c18/rung_ai-0.6.0.tar.gz"
+  sha256 "771d9f760007a985f9be4b58859a6304fb235b8e5d86a812406c73fb0a15f81a"
   license "Apache-2.0"
 
   depends_on "python@3.13"
