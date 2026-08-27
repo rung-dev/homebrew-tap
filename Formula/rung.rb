@@ -7,8 +7,8 @@ class Rung < Formula
 
   desc "Deterministic gate that grades how real a verification was and who checked it"
   homepage "https://github.com/rung-dev/rung"
-  url "https://files.pythonhosted.org/packages/67/a2/368b0b48d33d0f05f38ebaa8f6654ba832c651f3284b585bb4dcce307c18/rung_ai-0.6.0.tar.gz"
-  sha256 "771d9f760007a985f9be4b58859a6304fb235b8e5d86a812406c73fb0a15f81a"
+  url "https://files.pythonhosted.org/packages/c8/26/4095e24ac26e3f1a447bfafd4880a938f9a312fb51b93fe99d41506e215e/rung_ai-0.7.0.tar.gz"
+  sha256 "b5886dd0266fda5bcf2e9e473507dd76f069a2dbb3e5278c794d359c91821853"
   license "Apache-2.0"
 
   depends_on "python@3.13"
@@ -22,19 +22,26 @@ class Rung < Formula
     system bin/"rung", "version"
     # a minimal well-formed v2 bundle clears the default policy: verdict pass, exit 0.
     # rung 1 (observed) requires at least one capture artifact, which the gate hashes,
-    # so write the capture and reference its real sha256. brew test suppresses
-    # subprocess stdout, so the JSON verdict shows only under `brew test --verbose`;
-    # the assert_match below is what enforces the pass.
+    # so write the capture and reference its real sha256. The bundle also carries every
+    # schema-required field, so it validates against the published schema as well as
+    # gating. brew test suppresses subprocess stdout, so the JSON verdict shows only
+    # under `brew test --verbose`; the assert_match below is what enforces the pass.
     (testpath/"cap.txt").write "ok\n"
     require "digest"
     sha = Digest::SHA256.hexdigest(File.read(testpath/"cap.txt"))
     (testpath/"bundle.json").write <<~JSON
       {
         "schema": "evidence-bundle/v2",
-        "change": { "producer": { "lab": "test-lab" } },
+        "change": {
+          "repo": "homebrew formula smoke test",
+          "s0": "n/a (single-run witness, no baseline)",
+          "s1": "as-invoked: rung gate bundle.json",
+          "producer": { "lab": "test-lab" }
+        },
         "claims": [
           {
             "id": "c1",
+            "claim": "Gated a minimal recorded observation",
             "risk_tier": "low",
             "rung": 1,
             "method": "single",
