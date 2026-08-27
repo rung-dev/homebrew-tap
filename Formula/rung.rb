@@ -7,8 +7,8 @@ class Rung < Formula
 
   desc "Deterministic gate that grades how real a verification was and who checked it"
   homepage "https://github.com/rung-dev/rung"
-  url "https://files.pythonhosted.org/packages/c8/26/4095e24ac26e3f1a447bfafd4880a938f9a312fb51b93fe99d41506e215e/rung_ai-0.7.0.tar.gz"
-  sha256 "b5886dd0266fda5bcf2e9e473507dd76f069a2dbb3e5278c794d359c91821853"
+  url "https://files.pythonhosted.org/packages/0a/3e/466d5e8fe867dad6c0a63aca24bee1e7806a361d2750a9f5c40ead4989c6/rung_ai-0.7.1.tar.gz"
+  sha256 "e469b840a35c1becb6ddc696cc84737d60ac2b07c40574b5628a4d4f82cc71b3"
   license "Apache-2.0"
 
   depends_on "python@3.13"
@@ -18,8 +18,10 @@ class Rung < Formula
   end
 
   test do
-    # version runs clean
-    system bin/"rung", "version"
+    # version runs clean and names the release it was built from. Compared against
+    # the formula's own version, which Homebrew derives from the url, so a hand-bumped
+    # url/sha pointing at the wrong sdist fails here instead of installing quietly.
+    assert_match "rung #{version}", shell_output("#{bin}/rung version")
     # a minimal well-formed v2 bundle clears the default policy: verdict pass, exit 0.
     # rung 1 (observed) requires at least one capture artifact, which the gate hashes,
     # so write the capture and reference its real sha256. The bundle also carries every
